@@ -316,6 +316,9 @@ Mime::SET
 $ curl -IH "Accept: application/json" localhost:3000/zombies
 ```
 
+```shell
+$ curl -IH "Accept: application/json" localhost:3000/zombies
+```
 
 
 
