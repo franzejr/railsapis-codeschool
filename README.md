@@ -153,7 +153,7 @@ Important characteristics:
 
 
 
-Listening
+A simple listening test to verify if the route is ok
 
 ```ruby
 class ListingHumansTest < ActionDispatch::IntegrationTest
@@ -168,7 +168,7 @@ end
 ```
 
 
-Our controller rendering json
+Our simple controller rendering json and listing all objects
 ```ruby
 module API
   class HumansController < ApplicationController
@@ -181,7 +181,7 @@ end
 ```
 
 
-Testing
+Testing a simple query and verify if the response is right
 ```ruby
 class ListingHumansTest < ActionDispatch::IntegrationTest
   setup { host! 'api.example.com'}
@@ -195,14 +195,62 @@ class ListingHumansTest < ActionDispatch::IntegrationTest
     
     zombies = JSON.parse(response.body, symbolize_names:true)
     names = zombies.collect {|z| z[:name] }
-    assert_includes names, 'Jonh'
+    assert_includes names, 'John'
     refute_includes names, 'Allan'
   end
 end
 ```
 
+Our controller will looks like this:
+```ruby
+module API
+  class HumansController < ApplicationController
+    def index
+      humans = Human.all
+      if params[:brain_type]
+        humans = Human.where(brain_type: params[:brain_type])
+      end
+      render json: humans, status: :ok
+    end
+  end
+end
+```
 
- 
+Let's gonna use a method helper to parse JSON:
+```ruby
+ENV['RAILS_ENV'] = 'test'
+require File.expand_path('../../config/environment', __FILE__)
+require 'rails/test_help'
+
+class ActiveSupport::TestCase
+  ActiveRecord::Migration.check_pending!
+  fixtures :all
+
+  def json(body)
+    JSON.parse(body, symbolize_names: true)
+  end
+end
+```
+
+And we can use now on our follow test:
+
+```ruby
+class ListingHumansTest < ActionDispatch::IntegrationTest
+  setup { host! 'api.example.com' }
+
+  test 'returns human by id' do
+    human = Human.create!(name: 'Ash')
+    
+    get "/humans/#{human.id}"
+    assert_equal 200, response.status
+    
+    zombie_response = json(response.body)
+    assert_equal human.name, zombie_response[:name]
+    
+  end
+end
+```
+
 
 
 
