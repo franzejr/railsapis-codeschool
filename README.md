@@ -2,9 +2,9 @@ railsapis-codeschool
 ====================
 
 
-#Level 1: REST, Routes,  Constraints and namespaces
+##Level 1: REST, Routes,  Constraints and namespaces
 
-## Using Constraints to enforce subdomain
+#### Using Constraints to enforce subdomain
 
 Keeping our API under its own subdomain allows load balancing traffic at the DNS Level.
 
@@ -27,7 +27,7 @@ end
 
 
 
-### Using namespaces to keep controllers organized 
+##### Using namespaces to keep controllers organized 
 
 config/routes.rb
 ```ruby
@@ -56,7 +56,7 @@ app/controllers/pages_controller.rb
   end
 ```
 
-### We can use path on routes to remove the duplicate name api from the route. For example:
+#### We can use path on routes to remove the duplicate name api from the route. For example:
 
 config/routes/rb
 ```ruby
@@ -70,7 +70,7 @@ config/routes/rb
 and now we can only use the subdomain, like http://api.mysite.com/zombies
 
 
-### Using a shorter syntax for constraints and namespaces
+#### Using a shorter syntax for constraints and namespaces
 
 config/routes.rb
 ```ruby
