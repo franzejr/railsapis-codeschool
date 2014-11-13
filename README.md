@@ -67,6 +67,17 @@ config/routes/rb
   end
 ```
 
+```ruby
+SurvivingRails::Application.routes.draw do
+  namespace :api,path: '/', constraints: { subdomain: 'api'} do
+		resources :zombies
+		resources :humans    
+  end
+  resources :announcements
+end
+```
+
+
 and now we can only use the subdomain, like http://api.mysite.com/zombies
 
 
@@ -89,6 +100,59 @@ namespaces :api, path: '/', constraints: { subdomain: 'api'} do
   resources :humans
 end
 ```
+
+##### Using with_options
+
+The with_options method is an elegant way to factor duplication out of options passed to a series of method calls.
+
+```ruby
+SurvivingRails::Application.routes.draw do
+  resources :zombies, only: :index
+  resources :humans, only: :index
+  resources :medical_kits, only: :index
+  resources :broadcasts, only: :index
+end
+```
+
+```ruby
+SurvivingRails::Application.routes.draw do
+  with_options only: :index do |list_only|
+    list_only.resources :zombies
+    list_only.resources :humans
+    list_only.resources :medical_kits
+    list_only.resources :broadcasts
+  end
+end
+````
+
+
+##Level 2: Resources and GET
+
+##### It's all about the resources
+
+Any information that can be named can be a resource
+Some examples of a resource:
+ - A music playlist
+ - A song
+ - The leader of the Zombie horde
+ - Survivors
+ - Remaining medical kits
+
+"A resource is a conceptual mapping to a set of entities, not the entity that corrresponds to the mapping at any  particular point of time" - Steve Klabnik, Designing Hypermeda APIs
+
+
+##### Understanding the get method
+
+The GET method is used to read information identified by a giben URI
+
+Important characteristics:
+- Safe: it should not take any action other than retrieval
+- Idempotent: sequential GET requests to the same URI should not generate side-effects
+
+ 
+
+
+
 
 
 
