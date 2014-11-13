@@ -257,6 +257,22 @@ We can also use curl to check our response.
 
 ##### Different clients need different formats
 
+Web APIs need to cater to differnet types of clients.
+
+##### Setting the response format from the URI
+
+Rails allows switching formats by adding an extension to the URI
+
+For example:
+
+config/routes.rb
+```ruby
+	resources :zombies
+``` 
+
+It means that we can use: http://mywebapplication.com/zombies.JSON or zombies.XML
+
+This is a nicety from Rails and it is NOT a standard.
 
 
 ##### Using the accept header to request a media type
@@ -275,7 +291,30 @@ class ListingZombiesTest  < ActionDispatch::IntegrationTest
 end
 ```
 
-ss
+##### Using respond_to to serve JSON
+
+```ruby
+class ZombiesController < ApplicationController
+	def index
+		zombies = Zombie.all
+		respond_to do |format|
+			format.json {render json: zombies, status: :ok}
+		end
+	end
+end
+```
+
+##### Listing all media types from Rails
+
+The following command will list all supported media types
+```ruby
+Mime::SET
+```
+
+##### Using curl to get the response and test
+```shell
+$ curl -IH "Accept: application/json" localhost:3000/zombies
+```
 
 
 
