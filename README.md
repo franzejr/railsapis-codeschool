@@ -250,6 +250,33 @@ class ListingHumansTest < ActionDispatch::IntegrationTest
 end
 ```
 
+We can also use curl to check our response.
+
+
+##Level 3: Content Negotiation
+
+##### Different clients need different formats
+
+
+
+##### Using the accept header to request a media type
+
+Media types(used to be called Mime Types) specify the scheme for resource representations
+
+
+Testing our content type
+```ruby
+class ListingZombiesTest  < ActionDispatch::IntegrationTest
+	test 'returns zombies in JSON' do
+		get '/zombies', {}, {'Accept' => Mime:JSON}
+		assert_equal 200, response.status
+		assert_equal Mime:JSON, response.content_type
+	end
+end
+```￼
+
+
+
 
 
 
