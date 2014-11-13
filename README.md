@@ -56,8 +56,37 @@ app/controllers/pages_controller.rb
   end
 ```
 
-We can use path on 
+We can use path on routes to remove the duplicate name api from the route. For example:
+
+config/routes/rb
+```ruby
+  constraint :subdomain 'api' do
+    namespace :api, path: '/' do 
+      resources :zombies
+    end
+  end
+```
+
+and now we can only use the subdomain, like http://api.mysite.com/zombies
 
 
+### Using a shorter syntax for constraints and namespaces
 
+config/routes.rb
+```ruby
+  constraints subdomain: 'api'do
+    namespace :api, path: '/' do
+      resources :zombies
+      resources :humans
+    end
+  end
+```
+
+
+```ruby
+namespaces :api, path: '/', constraints: { subdomain: 'api'} do
+  resources :zombies
+  resources :humans
+end
+```
 
