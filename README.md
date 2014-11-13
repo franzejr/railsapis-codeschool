@@ -148,6 +148,59 @@ The GET method is used to read information identified by a giben URI
 Important characteristics:
 - Safe: it should not take any action other than retrieval
 - Idempotent: sequential GET requests to the same URI should not generate side-effects
+- 
+
+
+
+
+Listening
+
+```ruby
+class ListingHumansTest < ActionDispatch::IntegrationTest
+	setup { host! 'api.example.com' }
+
+  test 'returns a list of humans' do
+    get '/humans'
+    assert_equal 200, response.status
+    refute_empty response.body
+  end
+end
+```
+
+
+Our controller rendering json
+```ruby
+module API
+  class HumansController < ApplicationController
+    def index
+      humans = Human.all
+      render json: humans, status: :ok
+    end
+  end
+end
+```
+
+
+Testing
+```ruby
+class ListingHumansTest < ActionDispatch::IntegrationTest
+  setup { host! 'api.example.com'}
+
+  test 'returns a list of humans by brain type' do
+    allan = Human.create(name: 'Allan', brain_type: 'large')
+    jonh = Human.create(name: 'John', brain_type: 'small')
+    
+    get '/humans?brain_type=small'
+    assert_equal 200, response.status
+    
+    zombies = JSON.parse(response.body, symbolize_names:true)
+    names = zombies.collect {|z| z[:name] }
+    assert_includes names, 'Jonh'
+    refute_includes names, 'Allan'
+  end
+end
+```
+
 
  
 
