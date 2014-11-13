@@ -148,7 +148,6 @@ The GET method is used to read information identified by a giben URI
 Important characteristics:
 - Safe: it should not take any action other than retrieval
 - Idempotent: sequential GET requests to the same URI should not generate side-effects
-- 
 
 
 
@@ -233,7 +232,7 @@ end
 ```
 
 And we can use now on our follow test:
-
+id
 ```ruby
 class ListingHumansTest < ActionDispatch::IntegrationTest
   setup { host! 'api.example.com' }
