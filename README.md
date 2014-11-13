@@ -284,9 +284,9 @@ Testing our content type
 ```ruby
 class ListingZombiesTest  < ActionDispatch::IntegrationTest
 	test 'returns zombies in JSON' do
-		get '/zombies', {}, {'Accept' => Mime:JSON}
+		get '/zombies', {}, {'Accept' => Mime::JSON}
 		assert_equal 200, response.status
-		assert_equal Mime:JSON, response.content_type
+		assert_equal Mime::JSON, response.content_type
 	end
 end
 ```
