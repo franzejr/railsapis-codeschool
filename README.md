@@ -316,6 +316,10 @@ Mime::SET
 $ curl -IH "Accept: application/json" localhost:3000/zombies
 ```
 
+##### Testing with language set to english
+
+Use the Accept-Language request header for language negotiation.
+
 
 
 
