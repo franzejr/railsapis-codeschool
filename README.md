@@ -27,7 +27,7 @@ end
 
 
 
-Using namespaces to keep controllers organized 
+### Using namespaces to keep controllers organized 
 
 config/routes.rb
 ```ruby
@@ -56,7 +56,7 @@ app/controllers/pages_controller.rb
   end
 ```
 
-We can use path on routes to remove the duplicate name api from the route. For example:
+### We can use path on routes to remove the duplicate name api from the route. For example:
 
 config/routes/rb
 ```ruby
@@ -89,4 +89,6 @@ namespaces :api, path: '/', constraints: { subdomain: 'api'} do
   resources :humans
 end
 ```
+
+
 
