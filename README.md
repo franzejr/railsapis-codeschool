@@ -392,9 +392,96 @@ end
 
 ## Level 4: POST, PUT, PATCH and DELETE
 
+##### The POST Method
+
+The POST method is used to create new resources
+
+POST is neither safe or idempotent.
+
+##### Responding successfully to post methods
+
+A couple of things are expected from a successful POST request:
+
+- The status code for the response should be 201 - Created.
+- The response body should contain a representation of the new resource.
+- The location header should be set with the location of the new resource
+
+The 201 code means the request has been fulfilled and resulted in a new resource being created.
+
+##### Integration testing the post method
 
 
+##### Posting data with curl
 
+curl can help detect errors not caught by tests.
+
+the -X option specifies the method
+```shell
+$ curl -i -X POST -d 'episode[title]=ZombieApocalypseNow' \
+   http://localhost:3000/episodes
+```
+Use -d to send data on the request.
+
+```shell
+HTTP/1.1 422 Unprocessable Entity Content-Type: text/html; charset=utf-8
+```
+422 - Unprocessable Entity means the client submitted request was well-formed but semantically invalid.
+
+##### Forgery protection is disabeld on test
+
+Rails checks for an authenticity token on POST, PUT/PATCH and DELETE.
+
+app/controllers/aplication_controller.rb
+```ruby
+class ApplicationController < ActionController::Base
+	#Prevent CSRF attacks by raising an exception
+	#For APIs, you may want to use :null_session instead
+	protect_from_forgery with: :excpetion
+end
+```
+
+Defaults to disable on test environment.
+config/environments/test.rb
+```ruby
+# Disable request forgery protection in test environment.
+config.action_controller.allow_forgery_protection = false
+```
+the reason why CSRF error isn't raised during tests
+
+##### Using empty sessions on API requests
+
+API calls should be stateless.
+
+app/controllers/application_controller.rb
+```ruby
+class ApplicationController < ActionController::Base
+   # Prevent CSRF attacks by raising an exception.
+   # For APIs, you may want to use :null_session instead.
+   protect_from_forgery with: :null_session
+end
+```
+
+##### Successful responses with no content
+
+Some successful responses might not need to include a resonse body.
+Ajax responses can be made a lot of faster with no response body.
+
+```ruby
+class EpisodesController < ApplicationController !
+   def create
+     episode = Episode.new(episode_params)
+     if episode.save
+       render nothing: true, status: 204, location: episode
+     end
+￼￼￼￼￼￼￼￼￼￼￼￼￼end
+
+...
+end
+```
+
+The 204 code - No Content means the server has fulfilled the request but does not need to return an entity-body.
+
+￼
 
 
 
