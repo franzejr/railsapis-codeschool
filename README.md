@@ -321,6 +321,86 @@ $ curl -IH "Accept: application/json" localhost:3000/zombies
 Use the Accept-Language request header for language negotiation.
 
 
+##### Setting the language for the response
+
+Use the request.headers to access request headers
+
+
+app/controllers/applicaition_controller.rb
+```ruby
+class ApplicationController < ActionController::Base
+protect_from_forgery with: :exception
+before_action :set_locale
+
+protected
+	def set_locale
+		I18n.locale = request.headers['Accept-Language']
+	end
+end
+```
+Use the I18n.locale method to set application wide locale
+
+##### Using the http_accept_language gem
+
+Use the http_accept_language gem for a more robust support for locales.
+
+
+- Sanitizes the list of preferred languages
+- Sorts list of preferred languages
+- Finds best fit if multiple languages supported
+
+aap/controllers/application_controller.rb
+```ruby
+class ApplicationController < ActionController::Base
+	protect_from_forgery with: :exception
+	before_action :set_locale
+	
+	protected
+	def set_locale
+		locales = I18n.available_locales
+		I18n.locale = http_accept_language.compatible_language_from(locales)
+	end
+end
+```
+The method compatible_language_from checks header and returns the first language compatible with the available locales.
+
+
+
+##### Using jbuilder to return localized json
+
+Jbuilder provides a DSL for generating JSON
+
+```ruby
+class HumansController < ApplicationController
+  def index
+    @humans = Human.all
+    respond_to do |format|
+      format.json
+    end
+  end
+end
+```
+
+
+
+```ruby
+json.array(@humans) do |human|
+  json.extract! human, :id, :name, :brain_type
+  json.message I18n.t('human_message',name: human.name)
+end
+```
+
+## Level 4: POST, PUT, PATCH and DELETE
+
+
+
+
+
+
+
+
+
+
 
 
 
