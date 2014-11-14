@@ -410,6 +410,13 @@ The 201 code means the request has been fulfilled and resulted in a new resource
 
 ##### Integration testing the post method
 
+test/integration/creating_episodes_test.rb
+```ruby
+class CreatingEpisodesTest < ActionDispatch::IntegrationTest
+
+end
+```
+
 
 ##### Posting data with curl
 
