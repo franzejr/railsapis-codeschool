@@ -413,7 +413,19 @@ The 201 code means the request has been fulfilled and resulted in a new resource
 test/integration/creating_episodes_test.rb
 ```ruby
 class CreatingEpisodesTest < ActionDispatch::IntegrationTest
-
+	test 'creates episodes' do
+		post '/episodes/',
+		{episode:
+		   {title:'Bananas', description:'Learn about bananass.'}
+		}.to_json,
+		{'Accept' => Mime::JSON, 'Content-Type' => Mime::JSON.to_s }
+		
+		assert_equal 200, response.status
+		assert_equal Mime::JSON, response.content_type
+		
+		episode = json(response.body)
+		assert_equal episode_url(episode[:id]), response.location
+	end
 end
 ```
 
