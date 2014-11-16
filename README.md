@@ -753,6 +753,35 @@ https://github.com/bploetz/versionist/
 ## Level 6: Authentication
 
 
+##### API Authentication
+
+Authentication is how servers prevent unauthorized access to protected resources
+
+##### Authenticating using basic auth
+
+Credentials must be provided on HTTP requests using the Authorization header
+
+```shell
+GET /episodes HTTP/1.1
+  Host: localhost:3000
+  Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=
+```
+
+Basic Auth is part of the HTTP spec under RFC 2617. For more info, visit https://www.ietf.org/rfc/rfc2617
+
+
+##### Encoding the credentials
+
+Credentials for Basic Auth are expected to be Base64 encoded.
+
+Example:
+
+ruby console(irb)
+```ruby
+￼require 'base64'
+￼￼Base64.encode64('foo:secret')
+￼=> "Zm9vOnNlY3JldA==\n"
+￼```
 
 
 
