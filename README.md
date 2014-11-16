@@ -553,7 +553,108 @@ Responding with an empty body solved our performance issue. Now let’s go back 
   end
   ```
 
+##### PUT is for replacing resources
+
+PUT and PATCH are used for updating existing resources.
+
+##### PATCH is for partial updates to existing resources
+
+Always use PATCH for partial updates
+
+##### DELETE - Discarding resources
+
+The DELETE method indicates client is not interested in the given resource
+
+
+##### There is a couple ways the server can implement delete method
+
+1) Server deletes the record from the database
+
+```ruby
+class EpisodeController < ApplicationController
+	def destroy
+		episode = Episode.find params[:id]
+		episode.destroy
+		head 204
+	end
+
+end
+```
+
+2)Responding to delete by archiving records
+
+Flag records as archived and new finder for unarchived records.
+
+app/models/episode.rb
+```ruby
+class Episode < ActiveRecord::Base
+	def self.find_unarchived(id)
+		find_by!(id:id,archived:false)
+	end
+	
+	def archive
+		self.arhived = true
+		self.save
+	end
+end
+```
 ￼
+
+##### Unsuccessful update with patch 
+Now we need to write tests which ensure that clients cannot update existing humans with invalid data. We’ll intentionally issue a PATCH request with bad data to make sure our server reponds with the proper error.
+
+
+```ruby
+class UpdatingHumansTest < ActionDispatch::IntegrationTest
+  setup { @human = Human.create!(name: 'Robert', brain_type: 'small') }
+
+  test 'unsuccessful update on bad name' do
+    patch "/humans/#{@human.id}",
+      { human: { name: nil } }.to_json,
+      { 'Accept' => Mime::JSON, 'Content-Type' => Mime::JSON.to_s }
+    assert_equal 422, response.status
+  end
+end
+```
+
+
+##### Responding to unsuccessful updates
+
+```ruby
+ def update
+    human = Human.find(params[:id])
+
+    if human.update(human_params)
+      render json: human, status: 200
+    else
+      render json: human.errors, status: 422
+    end
+  end
+```
+
+￼
+
+
+## Level 5: API versioning
+
+##### Introducing changes to a live API
+
+Changes to the API cannot disrupt existing clients.
+
+##### API versioning
+
+Versioning helps prevent major changes from breaking existing clients
+
+##### Versioning using the URI
+
+Namespaces helps isolate controllers from different versions.
+
+
+
+
+
+
+## Level 6: Authentication
 
 
 
