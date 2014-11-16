@@ -650,8 +650,104 @@ Versioning helps prevent major changes from breaking existing clients
 Namespaces helps isolate controllers from different versions.
 
 
+##### Testing routes for URI versioning
+
+```ruby
+class RoutesTest < ActionDispatch::IntegrationTest
+  test 'routes to proper versions' do
+    assert_generates "/v1/zombies", {controller: "v1/zombies", action: 'index'}
+    assert_generates "/v2/zombies", {controller: "v2/zombies", action: 'index'}
+  end
+end
+```
 
 
+##### Versioning using custom media type and the accept header
+
+application/xml
+
+application/json
+
+Custom Media Type
+
+Example:
+application/vnd.apocalypse[.version]+json
+
+- application: payload is application-specific
+- vnd.apocalypse: media type is vendor-specific
+- [.version]: API version
+- +json: response formats should be JSON
+ 
+
+Integration testing API versions using the accept-header
+
+```ruby
+class ListingZombiesTest < ActionDispatch::IntegrationTest
+  test 'show zombie from API version 1' do
+    get '/zombies/1', {}, { 'Accept' => 'application/vnd.zombies.v1+json' }
+    assert_equal 200, response.status
+    assert_equal Mime::JSON, response.content_type
+    zombie = json(response.body)
+    assert_equal "This is version one", zombie[:message]
+  end
+end
+```
+
+
+##### Writing a route constraint class to check version
+
+
+lib/api_version.rb
+```ruby
+class ApiVersion
+
+  def initialize(version, default_version = false)
+    @version, @default_version = version, default_version
+  end
+
+  def matches?(request)
+    @default_version || check_headers(request.headers)
+  end
+
+  private
+    def check_headers(headers)
+      accept = headers['Accept']
+      accept && accept.include?("application/vnd.zombies.#{@version}+json")
+    end
+end
+```
+
+##### Applying route constraint
+
+config/routes.rb
+```ruby
+SurvivingRails::Application.routes.draw do
+  require 'api_version'
+  
+  scope defaults: { format: 'json' } do
+    scope module: :v1, constraints: ApiVersion.new('v1') do # Task 2
+      resources :zombies
+    end
+    scope module: :v2, constraints: ApiVersion.new('v2',true) do # Task 3
+      resources :zombies
+    end
+  end
+end
+```
+
+##### Testing routes for the default API version
+
+```ruby
+class RoutesTest < ActionDispatch::IntegrationTest
+  test 'defaults to v2' do
+    assert_generates '/zombies', 
+    { controller: 'v2/zombies/', action: 'index' }
+  end
+end
+```
+
+For a more robust solution for API versioning see:
+https://github.com/bploetz/versionist/
 
 
 ## Level 6: Authentication
