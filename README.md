@@ -1000,6 +1000,14 @@ class ApplicationController < ActionController::Base
 end
 ```
 
+##### Using curl
+
+API server now responds with correct format
+
+```shell
+curl -H "Authorization: Token token=a45fb396579a25458d23208560742610" -H "Accept: application/json" http://cs-zombies-dev.com:3000/zombies
+```
+
 
 
 
