@@ -1,6 +1,8 @@
 railsapis-codeschool
 ====================
 
+Annotations from RailsAPIs codeschool course.
+
 
 ##Level 1: REST, Routes,  Constraints and namespaces
 
