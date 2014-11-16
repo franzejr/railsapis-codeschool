@@ -908,6 +908,51 @@ There is currently a dra! for specifying HTTP Token Access Authentication.
 For more info, visit http://tools.ietf.org/html/dra!-hammer-http-token-auth-01
 
 
+##### Integration testing with token based authentication
+
+```ruby
+class ListingZombiesTest < ActionDispatch::IntegrationTest
+  setup { @user = User.create! }
+
+  test 'valid token lists zombies' do
+    get '/zombies',{},{'Authorization' => "Token token=#{@user.auth_token}"}
+    
+    assert_equal 200, response.status
+    assert_equal Mime::JSON, response.content_type
+  end
+end
+```
+
+##### Generating User Access Token
+
+
+```ruby
+class User < ActiveRecord::Base
+  before_create :set_auth_token
+
+  private
+
+    def set_auth_token
+      return if auth_token.present?
+      self.auth_token = TokenGenerator.create
+    end
+end
+```
+
+```ruby
+class User < ActiveRecord::Base
+  before_create :set_auth_token
+
+  private
+
+    def set_auth_token
+      return if auth_token.present?
+      self.auth_token = TokenGenerator.create
+    end
+end
+```
+
+
 
 
 
