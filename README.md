@@ -459,6 +459,12 @@ class ApplicationController < ActionController::Base
 end
 ```
 
+```ruby
+class ApplicationController < ActionController::Base
+  protect_from_forgery with: :null_session
+end
+```
+
 Defaults to disable on test environment.
 config/environments/test.rb
 ```ruby
@@ -499,6 +505,53 @@ end
 ```
 
 The 204 code - No Content means the server has fulfilled the request but does not need to return an entity-body.
+
+```ruby
+class HumansController < ApplicationController
+  protect_from_forgery with: :null_session
+
+  def create
+    human = Human.new(human_params)
+
+    if human.save
+      render nothing: true,status: 204, location: human
+    end
+  end
+
+  private
+
+  def human_params
+    params.require(:human).permit(:name, :brain_type)
+  end
+end
+```
+
+Responding with an empty body solved our performance issue. Now let’s go back and refactor our response to be a bit more expressive.
+
+
+```ruby
+  def create
+    human = Human.new(human_params)
+
+    if human.save
+      head 204, location: human
+    end
+  end
+ ```
+ 
+ Responding with 422 and rendering json error
+ 
+ ```ruby
+ def create
+    human = Human.new(human_params)
+
+    if human.save
+      head 204, location: human
+    else
+      render json: human.errors, status: 422
+    end
+  end
+  ```
 
 ￼
 
