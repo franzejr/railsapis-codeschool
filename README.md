@@ -781,8 +781,131 @@ ruby console(irb)
 ￼require 'base64'
 ￼￼Base64.encode64('foo:secret')
 ￼=> "Zm9vOnNlY3JldA==\n"
-￼```
+```
 
+
+##### Implementing basic auth in a controller
+
+Rails has built-in support for basic auth.
+
+```ruby
+class EpisodesController < ApplicationController
+    before_action :authenticate!
+
+￼￼￼￼￼￼def index
+  episodes = Episode.all
+  render json: episodes, status: 200
+
+￼￼￼￼￼protected
+  def authenticate
+	￼￼authenticate_or_request_with_http_basic do |username, password|
+  		User.authenticate(username, password) 
+  	end
+  ￼￼￼￼￼￼end
+end
+```
+
+
+
+
+##### Integration testing with basic auth
+
+```ruby
+class ListingZombiesTest < ActionDispatch::IntegrationTest
+  setup { @user = User.create!(username: 'foo', password: 'secret') }
+
+  test 'valid authentication lists zombies' do
+    get '/zombies', {}, {'Authorization' => encode_credentials(@user.username, @user.password)}
+    assert_equal 200, response.status
+    assert_equal Mime::JSON, response.content_type
+  end
+end
+```
+
+Testing no authorization
+```ruby
+class ListingZombiesTest < ActionDispatch::IntegrationTest
+  test 'invalid authentication responds with proper status code' do
+    get '/zombies', {},{'Authorization' => ''}
+    assert_equal 401, response.status
+  end
+end
+```
+
+
+##### Implementing basic auth controller
+```ruby
+class ListingZombiesTest < ActionDispatch::IntegrationTest
+  test 'invalid authentication responds with proper status code' do
+    get '/zombies', {},{'Authorization' => ''}
+    assert_equal 401, response.status
+  end
+end
+```
+
+
+```ruby
+class User < ActiveRecord::Base
+  has_secure_password
+
+  def self.authenticate(username, password)
+    user = find_by(username: username)
+    user && user.authenticate(password)
+  end
+end
+```
+
+
+##### Setting the response header and proper format
+
+```ruby
+class ApplicationController < ActionController::Base
+
+  before_action :authenticate
+
+  protected
+    def authenticate
+      authenticate_basic_auth || render_unauthorized
+    end
+
+    def authenticate_basic_auth
+      authenticate_with_http_basic do |username, password|
+        User.authenticate(username, password)
+      end
+    end
+
+    def render_unauthorized
+      self.headers['WWW-Authenticate'] = 'Basic realm="Zombies"'
+      respond_to do |format|
+        format.json {render json: 'Bad credentials', status: 401}
+        format.xml {render json: 'Bad credentials', status: 401}
+      end
+    end
+end
+```
+
+##### Token based authentication
+
+API clients use a token identifier for making authenticated HTTP requests.
+
+Benefits over Basic Auth:
+
+- More convenience, as we can easily expire or regenerate tokens without affecting the user's account password.
+- Better security if compromised, since vulnerability is limited to API access and not the user's master account.
+- The ability to have multiple tokens for each user, which they can use to grant access to different API clients.
+- Greater control for each token, so different access rules can be implemented.
+ 
+
+Token must be provided on HTTP requests using the Authorization header.
+
+```shell
+GET /episodes HTTP/1.1
+ Host: localhost:3000
+ Authorization: Token token=16d7d6089b8fe0c5e19bfe10bb156832
+ ```
+
+There is currently a dra! for specifying HTTP Token Access Authentication.
+For more info, visit http://tools.ietf.org/html/dra!-hammer-http-token-auth-01
 
 
 
